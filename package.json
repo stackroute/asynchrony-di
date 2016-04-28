@@ -1,0 +1,29 @@
+{
+  "name": "async-di",
+  "version": "0.0.0",
+  "description": "An Asynchronous Dependency Injection Library",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stackroute/async-di.git"
+  },
+  "keywords": [
+    "async",
+    "di"
+  ],
+  "author": "Sagar Patke <sagarpatke@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stackroute/async-di/issues"
+  },
+  "homepage": "https://github.com/stackroute/async-di#readme",
+  "devDependencies": {
+    "should": "^8.3.1"
+  }
+}
