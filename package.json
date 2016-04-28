@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/stackroute/async-di#readme",
   "devDependencies": {
+    "q": "^1.4.1",
     "should": "^8.3.1"
   }
 }
