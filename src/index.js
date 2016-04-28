@@ -6,7 +6,8 @@ var Injector = function() {
 };
 
 Injector.prototype.add = function(name, dependency) {
-  return this.dependencies[name] = dependency;
+  this.dependencies[name] = dependency;
+  this.detectcyclicDependencies(name,[],[]);
 };
 
 Injector.prototype.invoke = function(dependencies) {
@@ -60,7 +61,7 @@ Injector.prototype.createPromiseForDependency = function(name) {
 
   return deferred.promise;
 };
-Injector.prototype.invokeReamainingTask = function (done) {
+Injector.prototype.invokeRemainingTask = function (done) {
   var dependencies=[];
   for (name in this.dependencies){
     if(!this.dependencyPromises.hasOwnProperty(name)){
@@ -79,5 +80,24 @@ Injector.prototype.invokeReamainingTask = function (done) {
     });
     done.apply(this,[null,remainingDependenciesValue]);
   });
+};
+Injector.prototype.detectcyclicDependencies = function (name,resolved,unresolved) {
+  unresolved.push(name);
+  var dependencies=[];
+  var depArray=this.dependencies[name]===undefined?[]:this.dependencies[name];
+  for (var i = 0; i < depArray.length-1; i++) {
+    dependencies.push(depArray[i]);
+  }
+  dependencies.forEach((function(edge){
+    if (!(resolved.indexOf(edge) > -1)){
+      if(unresolved.indexOf(edge) > -1){
+        throw(new Error('Whoops! there is a circular dependency aborting !!!'));
+      }
+      this.detectcyclicDependencies(edge,resolved,unresolved)
+    }
+  }).bind(this));
+  resolved.push(name);
+  var index = unresolved.indexOf(name);
+  unresolved.splice(index, 1);
 };
 module.exports = Injector;

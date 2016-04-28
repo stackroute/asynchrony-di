@@ -215,7 +215,7 @@ describe('Async Dependency Injection', function() {
     }]);
     count2.should.be.exactly(0);
     count3.should.be.exactly(0);
-    injector.invokeReamainingTask(function(err,data){
+    injector.invokeRemainingTask(function(err,data){
       //data is an object(key:value) which has Remaining dependency value. Key is the name of the dependency and value which will be equal to returned value of the invoked dependency.
       data['thing2'].should.be.exactly(rand2);
       data['thing3'].should.be.exactly(rand3);
@@ -224,5 +224,36 @@ describe('Async Dependency Injection', function() {
       count3.should.be.exactly(1);
       done();
     });
+  });
+
+
+  it('Cyclic dependency Scenario', function(done) {
+    var injector = new Injector();
+
+    var rand1 = (Math.random()*99387593793);
+    var rand2 = (Math.random()*76876767677);
+    var count1 = 0;
+
+    injector.add('thing1', ['thing2',function(t2,done) {
+      setTimeout(function() {
+        count1++;
+        return done(null, t2+rand1);
+      },1000);
+    }]);
+
+    injector.add('thing2', ['thing1',function(t1,done) {
+      setTimeout(function() {
+        count2++;
+        return done(null, t1+rand2);
+      },1000);
+    }]);
+    injector.invoke(['thing1',function(t1) {
+      t1.should.be.exactly(rand1+rand2);
+      done();
+    }]);
+    injector.invoke(['thing2',function(t2) {
+      t1.should.be.exactly(rand1+rand2);
+      done();
+    }]);
   });
 });
