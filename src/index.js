@@ -60,5 +60,24 @@ Injector.prototype.createPromiseForDependency = function(name) {
 
   return deferred.promise;
 };
-
+Injector.prototype.invokeReamainingTask = function (done) {
+  var dependencies=[];
+  for (name in this.dependencies){
+    if(!this.dependencyPromises.hasOwnProperty(name)){
+      dependencies.push(name);
+    }
+  }
+  var promises = dependencies.map((function(name) {
+    return this.getValueOfDependency(name);
+  }).bind(this));
+  return q.spread(promises,function () {
+    var values=Array.from(arguments);
+    var count=0;
+    remainingDependenciesValue={};
+    dependencies.forEach(function (name) {
+      remainingDependenciesValue[name]=values[count++];
+    });
+    done.apply(this,[null,remainingDependenciesValue]);
+  });
+};
 module.exports = Injector;

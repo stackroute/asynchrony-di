@@ -174,4 +174,55 @@ describe('Async Dependency Injection', function() {
       done();
     }]);
   });
+
+  it('Remaining Task Execution Test', function(done) {
+    var injector = new Injector();
+
+    var rand1 = (Math.random()*99387593793);
+    var rand2 = (Math.random()*67674367647);
+    var rand3 = (Math.random()*19928738278);
+    var count1 = 0;
+    var count2 = 0;
+    var count3 = 0;
+
+    injector.add('thing1', [function(done) {
+      setTimeout(function() {
+        count1++;
+        return done(null, rand1);
+      },200);
+    }]);
+    injector.add('thing2', [function(done) {
+      setTimeout(function() {
+        count2++;
+        return done(null, rand2);
+      },300);
+    }]);
+    injector.add('thing3', [function(done) {
+      setTimeout(function() {
+        count3++;
+        return done(null, rand3);
+      },100);
+    }]);
+    count1.should.be.exactly(0);
+    count2.should.be.exactly(0);
+    count3.should.be.exactly(0);
+    injector.invoke(['thing1', function(thing1) {
+      count1.should.be.exactly(1);
+      count2.should.be.exactly(0);
+      count3.should.be.exactly(0);
+      thing1.should.be.exactly(rand1);
+      done();
+    }]);
+    count2.should.be.exactly(0);
+    count3.should.be.exactly(0);
+    injector.invokeReamainingTask(function(err,data){
+      //data is an object(key:value) which has Remaining dependency value. Key is the name of the dependency and value which will be equal to returned value of the invoked dependency.
+      data['thing2'].should.be.exactly(rand2);
+      data['thing3'].should.be.exactly(rand3);
+      count1.should.be.exactly(1);
+      count2.should.be.exactly(1);
+      count3.should.be.exactly(1);
+      done();
+    });
+  });
 });
