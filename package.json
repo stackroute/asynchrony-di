@@ -1,5 +1,5 @@
 {
-  "name": "async-di",
+  "name": "asynchrony-di",
   "version": "0.0.0",
   "description": "An Asynchronous Dependency Injection Library",
   "main": "src/index.js",
@@ -14,11 +14,29 @@
     "url": "git+https://github.com/stackroute/async-di.git"
   },
   "keywords": [
-    "async",
+    "asynchrony",
     "di"
   ],
-  "author": "Sagar Patke <sagarpatke@gmail.com>",
-  "license": "ISC",
+  "author": "Ghulam Rabbani <rabbanitauf@gmail.com>",
+  "contributors": [
+  {
+    "email": "sagar@gamersdemokrasy.com",
+    "name": "Sagar Patke"
+  },
+  {
+    "email": "rabbanitauf@gmail.com",
+    "name": "Ghulam Rabbani"
+  },
+  {
+    "email": "abhishekkumar647@outlook.com",
+    "name": "Abhishek Kumar"
+  },
+  {
+    "email": "flipsyde606@gmail.com",
+    "name": "Kirushna Kumar"
+  }
+  ],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/stackroute/async-di/issues"
   },
