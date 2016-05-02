@@ -39,10 +39,10 @@ use npm to install the asynchrony-di module.
 ### Add a task
   asynchrony.add(name,[deps,fn]);
 ####Parameter	Type	Description
-  name - String	The name of the task
-  deps - task names to be executed before running the given task, it is optional.
-  fn- Function	The actual function that gets executed when the given task is invoked.
-  Note:  Take in a callback (done) for Async tasks
+  name - String	The name of the task.  
+  deps - task names to be executed before running the given task, it is optional.  
+  fn- Function	The actual function that gets executed when the given task is invoked.  
+  Note:  Take in a callback (done) for Async tasks  
 
 ####Example:
 ```javascript
@@ -67,9 +67,9 @@ use npm to install the asynchrony-di module.
   }]);
   ```
 ##### Parameter	Type	Description
-names - String	The names of the tasks to be invoked
-fn - Function	The callback function which will be executed after all the mentioned tasks are complete.
-value - Object	Possess the return values from the invoked tasks
+names - String	The names of the tasks to be invoked  
+fn - Function	The callback function which will be executed after all the mentioned tasks are complete.  
+value - Object	Possess the return values from the invoked tasks  
 
 ####Example
 ```javascript
@@ -94,7 +94,7 @@ value - Object	Possess the return values from the invoked tasks
   });
   ```
 ####Parameter	Type	Description
-fn Function - The callback function which will be executed after all the remaining tasks are complete.
+fn Function - The callback function which will be executed after all the remaining tasks are complete.  
 
 ####Example
 ```javascript
