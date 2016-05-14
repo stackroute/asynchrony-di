@@ -7,7 +7,6 @@ var Asynchrony = function() {
 
 Asynchrony.prototype.add = function(name, dependency) {
   this.dependencies[name] = dependency;
-  this.detectCyclicDependencies(name,[],[]);
 };
 
 Asynchrony.prototype.invoke = function(dependencies) {
@@ -61,16 +60,20 @@ Asynchrony.prototype.createPromiseForDependency = function(name) {
 
   return deferred.promise;
 };
+
 Asynchrony.prototype.invokeRemainingTask = function (done) {
   var dependencies=[];
+
   for (name in this.dependencies){
     if(!this.dependencyPromises.hasOwnProperty(name)){
       dependencies.push(name);
     }
   }
+
   var promises = dependencies.map((function(name) {
     return this.getValueOfDependency(name);
   }).bind(this));
+  
   return q.spread(promises,function () {
     var values=Array.from(arguments);
     var count=0;
@@ -81,23 +84,6 @@ Asynchrony.prototype.invokeRemainingTask = function (done) {
     done.apply(this,[null,remainingDependenciesValue]);
   });
 };
-Asynchrony.prototype.detectCyclicDependencies = function (name,resolved,unresolved) {
-  unresolved.push(name);
-  var dependencies=[];
-  var depArray=this.dependencies[name]===undefined?[]:this.dependencies[name];
-  for (var i = 0; i < depArray.length-1; i++) {
-    dependencies.push(depArray[i]);
-  }
-  dependencies.forEach((function(edge){
-    if (!(resolved.indexOf(edge) > -1)){
-      if(unresolved.indexOf(edge) > -1){
-        throw(new Error('Whoops! there is a circular dependency aborting !!!'));
-      }
-      this.detectCyclicDependencies(edge,resolved,unresolved)
-    }
-  }).bind(this));
-  resolved.push(name);
-  var index = unresolved.indexOf(name);
-  unresolved.splice(index, 1);
-};
-module.exports = Asynchrony;
+
+
+exports = module.exports = Asynchrony;

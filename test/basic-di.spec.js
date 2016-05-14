@@ -126,53 +126,6 @@ describe('Async Dependency Injection', function() {
     }]);
   });
 
-  it('Extra Nested Multiple Dependencies', function(done) {
-    var asynchrony = new Asynchrony();
-
-    var rand1 = Math.random() * 1837953092;
-    var rand2 = Math.random() * 5849382729;
-    var rand3 = Math.random() * 5838308403;
-
-    var count1 = 0;
-    var count2 = 0;
-    var count3 = 0;
-
-    asynchrony.add('thing1', [function(done) {
-      setTimeout(function() {
-        count1++;
-        return done(null, rand1);
-      }, 300);
-    }]);
-
-    asynchrony.add('thing2', ['thing1', function(t1, done) {
-      setTimeout(function() {
-        count2++;
-        return done(null, t1+rand2);
-      },400);
-    }]);
-
-    asynchrony.add('thing3', ['thing1', 'thing2', function(t1,t2, done) {
-      setTimeout(function() {
-        count3++;
-        return done(null, t1+t2+rand3);
-      }, 100);
-    }]);
-
-    count1.should.be.exactly(0);
-    count2.should.be.exactly(0);
-    count3.should.be.exactly(0);
-
-    asynchrony.invoke(['thing3', 'thing2', 'thing1', function(t3,t2,t1) {
-      t1.should.be.exactly(rand1);
-      t2.should.be.exactly(rand1+rand2);
-      t3.should.be.exactly(2*rand1+rand2+rand3);
-      count1.should.be.exactly(1);
-      count2.should.be.exactly(1);
-      count3.should.be.exactly(1);
-      done();
-    }]);
-  });
-
   it('Remaining Task Execution Test', function(done) {
     var asynchrony = new Asynchrony();
 
@@ -218,33 +171,6 @@ describe('Async Dependency Injection', function() {
         count3.should.be.exactly(1);
         done();
       });
-    }]);
-  });
-
-
-  it('Cyclic dependency Scenario', function(done) {
-    var asynchrony = new Asynchrony();
-
-    var rand1 = (Math.random()*99387593793);
-    var rand2 = (Math.random()*76876767677);
-    var count1 = 0;
-
-    asynchrony.add('thing1', ['thing2',function(t2,done) {
-      setTimeout(function() {
-        count1++;
-        return done(null, t2+rand1);
-      },1000);
-    }]);
-
-    asynchrony.add('thing2', ['thing1',function(t1,done) {
-      setTimeout(function() {
-        count2++;
-        return done(null, t1+rand2);
-      },1000);
-    }]);
-    asynchrony.invoke(['thing1',function(t1) {
-      t1.should.be.exactly(rand1+rand2);
-      done();
     }]);
   });
 });

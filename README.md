@@ -1,7 +1,17 @@
 ## Synopsis
 
-asynchrony-di is a lightweight simplistic library for performing asynchronous dependency injection for optimized injection and orchestration of interdependent tasks.
-It provides DI similar to AngularJS 1.x's dependency injector
+An unopinionated asynchronous Dependency Injector and Orchestrator.
+
+## The need for another Dependency Injection Framework
+
+Asynchrony DI was created at [StackRoute](http://stackroute.in) ([Github](https://github.com/stackroute)) to solve the problem of asynchronous dependency injection and orchestration of extensible counters in it's Quiz Framework, for awarding badges to quiz players in real-time. For instance, when the player wins his 10th quiz in a streak, we could award him a "Super Streak" badge. The challenges were as follows:
+
+1. Counters ("Winning Streak") and badges ("Super Streak"), are extensible. This means, new counters and badges could be added to the platform, and counters that have to be evaluated for any given event may increase.
+1. Counters need to be evaluated only once. A cached value needs to be returned when it is depended upon subsequently.
+1. To award the badges to the player in real-time, they need to be evaluated with the highest priority, which in turn require that their dependent counters be evaluated. This requires an IOC / DI framework.
+1. Counter values are stored in a shared In-Memory store, which can be retrieved with an async call.
+
+As such, we first evaluated [wagner-core](https://www.npmjs.com/package/wagner-core), [orchestrator](https://www.npmjs.com/package/orchestrator), and Angular's [di](https://github.com/angular/di.js/). Wagner and Angular's di are designed to bootstrap functions as dependencies, which are called during runtime in a synchronous fashion. This would not allow for returning and caching of asynchronous data. Wagner's synchronous approach would not let us retrieve counter values from an external data store. It's asynchronous dependencies, on the other hand, does not cache responses for re-use. Orchestrator is good at orchestrating and running dependencies in the right order, but lacks the ability to inject asynchronous cached values. Hence, we created Asynchrony-DI package, that would cache valued retrieved in an asynchronous manner, and also orchestrate dependency execution.
 
 ## Code Example
 
@@ -10,25 +20,27 @@ It provides DI similar to AngularJS 1.x's dependency injector
       var Asynchrony = require('asynchrony-di');
       var asynchrony = new Asynchrony();
   ```
-### Load it up with stuff to do:
+### Load it up with stuff to retrieve:
   ```javascript
       asynchrony.add('thing1',[function(done){
-          // do stuff
+        setTimeout(function() {
+          done(null, 'foo')
+        });
       }]);
 
       asynchrony.add('thing2', [function(done){
-          // do stuff
+        setTimeout(function() {
+          done(null, 'bar');
+        });
       }]);
   ```
 ### Run the tasks:
   ```javascript
       asynchrony.invoke(['thing1', 'thing2', function (t1, t2) {
-          // do stuff
-        }]);
+        console.log(thing1); // prints foo;
+        console.log(thing2); // prints bar;
+      }]);
   ```
-## Motivation
-
-We have created this framework for the  user badges manipulation in our project. with help of this asynchronous framework, we have achieved our goal. This framework has been published as npm module and this is in development phase.
 
 ## Installation
 use npm to install the asynchrony-di module.
@@ -38,19 +50,19 @@ use npm to install the asynchrony-di module.
 
 ### Add a task
   asynchrony.add(name,[deps,fn]);
-####Parameter	Type	Description
+#### Parameter	Type	Description
   name - String	The name of the task.  
   deps - task names to be executed before running the given task, it is optional.  
   fn- Function	The actual function that gets executed when the given task is invoked.  
   Note:  Take in a callback (done) for Async tasks  
 
-####Example:
+#### Example:
 ```javascript
     async_di.add('FirstName',[function(done){
-        return done(null,'Wipro');
+        return done(null,'foo');
       }]);
     async_di.add('SecondName',[function(done){
-      return done(null,'Digital')
+      return done(null,'bar')
     }]);
     async_di.add('FullName', ['FirstName','LastName', function(firstName, lastName, done) {
       //Form full name from the dependency values
@@ -71,7 +83,7 @@ names - String	The names of the tasks to be invoked
 fn - Function	The callback function which will be executed after all the mentioned tasks are complete.  
 value - Object	Possess the return values from the invoked tasks  
 
-####Example
+#### Example
 ```javascript
     asynchrony.add('FullName', ['FirstName','LastName', function(firstName, lastName, done) {
       //Form full name from the dependency values
@@ -84,7 +96,7 @@ value - Object	Possess the return values from the invoked tasks
     }]);
 ```
 
-###Invoke Remaining
+### Invoke Remaining Dependencies
   asynchrony.invokeRemainingTask (fn);
 
   Execute tasks which weren’t explicitly invoked
@@ -93,10 +105,10 @@ value - Object	Possess the return values from the invoked tasks
     // do something after all the remaining tasks are completed
   });
   ```
-####Parameter	Type	Description
+#### Parameter	Type	Description
 fn Function - The callback function which will be executed after all the remaining tasks are complete.  
 
-####Example
+#### Example
 ```javascript
     asynchrony.add('FirstName',[function(done){
       // return done(null,firstName);
@@ -324,40 +336,6 @@ describe('Async Dependency Injection', function() {
         count3.should.be.exactly(1);
         done();
       });
-    }]);
-  });
-});
-```
-###Cyclic dependency Scenario
-Note - If the cycle will be detected, it will throw the error.
-```javascript
-var Asynchrony = require('asynchrony-di');
-var should = require('should');
-describe('Async Dependency Injection', function() {
-
-  it('Cyclic dependency Scenario', function(done) {
-    var asynchrony = new Asynchrony();
-
-    var rand1 = (Math.random()*99387593793);
-    var rand2 = (Math.random()*76876767677);
-    var count1 = 0;
-
-    asynchrony.add('thing1', ['thing2',function(t2,done) {
-      setTimeout(function() {
-        count1++;
-        return done(null, t2+rand1);
-      },1000);
-    }]);
-
-    asynchrony.add('thing2', ['thing1',function(t1,done) {
-      setTimeout(function() {
-        count2++;
-        return done(null, t1+rand2);
-      },1000);
-    }]);
-    asynchrony.invoke(['thing1',function(t1) {
-      t1.should.be.exactly(rand1+rand2);
-      done();
     }]);
   });
 });
