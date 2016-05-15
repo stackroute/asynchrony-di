@@ -11,73 +11,87 @@ Asynchrony DI was created at [StackRoute](http://stackroute.in) ([Github](https:
 1. To award the badges to the player in real-time, they need to be evaluated with the highest priority, which in turn require that their dependent counters be evaluated. This requires an IOC / DI framework.
 1. Counter values are stored in a shared In-Memory store, which can be retrieved with an async call.
 
-As such, we first evaluated [wagner-core](https://www.npmjs.com/package/wagner-core), [orchestrator](https://www.npmjs.com/package/orchestrator), and Angular's [di](https://github.com/angular/di.js/). Wagner and Angular's di are designed to bootstrap functions as dependencies, which are called during runtime in a synchronous fashion. This would not allow for returning and caching of asynchronous data. Wagner's synchronous approach would not let us retrieve counter values from an external data store. It's asynchronous dependencies, on the other hand, does not cache responses for re-use. Orchestrator is good at orchestrating and running dependencies in the right order, but lacks the ability to inject asynchronous cached values. Hence, we created Asynchrony-DI package, that would cache valued retrieved in an asynchronous manner, and also orchestrate dependency execution.
+As such, we first evaluated [wagner-core](https://www.npmjs.com/package/wagner-core), [orchestrator](https://www.npmjs.com/package/orchestrator), and Angular's [di](https://github.com/angular/di.js/). Wagner and Angular's di are designed to bootstrap functions as dependencies, which are called during runtime in a synchronous fashion. This would not allow for returning and caching of asynchronous data. Wagner's synchronous approach would not let us retrieve counter values from an external data store. It's asynchronous dependencies, on the other hand, does not cache responses for re-use. Orchestrator is good at orchestrating and running dependencies in the right order, but lacks the ability to inject asynchronous cached values. Hence, we created Asynchrony-DI package, which would cache values retrieved in an asynchronous manner, and also orchestrate dependency execution.
 
 ## Code Example
 
-### Get a reference:
-  ```javascript
-      var Asynchrony = require('asynchrony-di');
-      var asynchrony = new Asynchrony();
-  ```
-### Load it up with stuff to retrieve:
-  ```javascript
-      asynchrony.add('thing1',[function(done){
-        setTimeout(function() {
-          done(null, 'foo')
-        });
-      }]);
-
-      asynchrony.add('thing2', [function(done){
-        setTimeout(function() {
-          done(null, 'bar');
-        });
-      }]);
-  ```
-### Run the tasks:
-  ```javascript
-      asynchrony.invoke(['thing1', 'thing2', function (t1, t2) {
-        console.log(thing1); // prints foo;
-        console.log(thing2); // prints bar;
-      }]);
-  ```
-
-## Installation
+### Installation
 use npm to install the asynchrony-di module.
-> npm install asynchrony-di --save
+```shell
+npm install asynchrony-di --save
+```
+
+### Get a reference:
+```javascript
+var Asynchrony = require('asynchrony-di');
+var asynchrony = new Asynchrony();
+```
+### Load it up with stuff to retrieve:
+```javascript
+asynchrony.add('thing1',[function(done){
+  setTimeout(function() {
+    done(null, 'foo')
+  });
+}]);
+
+asynchrony.add('thing2', [function(done){
+  setTimeout(function() {
+    done(null, 'bar');
+  });
+}]);
+```
+These dependencies are not evaluated until depended upon.
+
+### Run the tasks:
+```javascript
+asynchrony.invoke(['thing1', 'thing2', function (t1, t2) {
+  console.log(t1); // prints foo;
+  console.log(t2); // prints bar;
+}]);
+```
+
 
 ## API Reference
 
 ### Add a task
-  asynchrony.add(name,[deps,fn]);
+```javascript
+asynchrony.add(name,[deps,fn]);
+```
 #### Parameter	Type	Description
-  name - String	The name of the task.  
-  deps - task names to be executed before running the given task, it is optional.  
-  fn- Function	The actual function that gets executed when the given task is invoked.  
-  Note:  Take in a callback (done) for Async tasks  
+name
+: String	The name of the task.  
+
+deps
+: Task names to be executed before running the given task, it is optional.  
+
+fn
+: Function	The actual function that gets executed when the given task is invoked.  
+_Note:_ Take in a callback (done) for Async tasks  
 
 #### Example:
 ```javascript
-    async_di.add('FirstName',[function(done){
-        return done(null,'foo');
-      }]);
-    async_di.add('SecondName',[function(done){
-      return done(null,'bar')
-    }]);
-    async_di.add('FullName', ['FirstName','LastName', function(firstName, lastName, done) {
-      //Form full name from the dependency values
-        return done(null,firstName+" "+lastName);
-    }]);
+async_di.add('FirstName',[function(done){
+    return done(null,'foo');
+  }]);
+async_di.add('SecondName',[function(done){
+  return done(null,'bar')
+}]);
+async_di.add('FullName', ['FirstName','LastName', function(firstName, lastName, done) {
+  //Form full name from the dependency values
+    return done(null,firstName+" "+lastName);
+}]);
 ```
 ### Invoke
-    asynchrony.invoke(names[, fn(,value)]);
+```
+asynchrony.invoke(names[, fn(,value)]);
+```
 
 #### Execute a task
-  ```javascript
-  asynchrony.invoke(['thing1', function(t1){
+```javascript
+asynchrony.invoke(['thing1', function(t1){
   // do stuff
-  }]);
-  ```
+}]);
+```
 ##### Parameter	Type	Description
 names - String	The names of the tasks to be invoked  
 fn - Function	The callback function which will be executed after all the mentioned tasks are complete.  
@@ -85,44 +99,46 @@ value - Object	Possess the return values from the invoked tasks
 
 #### Example
 ```javascript
-    asynchrony.add('FullName', ['FirstName','LastName', function(firstName, lastName, done) {
-      //Form full name from the dependency values
-        return done(null,firstName+lastName);
-    }]);
+asynchrony.add('FullName', ['FirstName','LastName', function(firstName, lastName, done) {
+  //Form full name from the dependency values
+    return done(null,firstName+lastName);
+}]);
 
-    asynchrony.invoke([‘FullName’, function(fullName){
-      //Perform something after getting full name
-      console.log(fullName);
-    }]);
+asynchrony.invoke([‘FullName’, function(fullName){
+  //Perform something after getting full name
+  console.log(fullName);
+}]);
 ```
 
 ### Invoke Remaining Dependencies
-  asynchrony.invokeRemainingTask (fn);
+asynchrony.invokeRemainingTask (fn);
 
-  Execute tasks which weren’t explicitly invoked
-  ```javascript
-  asynchrony.invokeRemainingTask (function(){
-    // do something after all the remaining tasks are completed
-  });
-  ```
+Execute tasks which weren’t explicitly invoked
+```javascript
+asynchrony.invokeRemainingTask (function(){
+  // do something after all the remaining tasks are completed
+});
+```
+
 #### Parameter	Type	Description
 fn Function - The callback function which will be executed after all the remaining tasks are complete.  
 
 #### Example
 ```javascript
-    asynchrony.add('FirstName',[function(done){
-      // return done(null,firstName);
-    }]);
-    asynchrony.add('SecondName',[function(done){
-      // return done(null,secondName)
-    }]);
-    asynchrony.invoke( [‘FirstName’, function(firstName) {
-      //do something with firstname
-    }]);
-    asynchrony.invokeRemainingTask(function(){
-      //do something after lastname is also executed
-    });
+asynchrony.add('FirstName',[function(done){
+  // return done(null,firstName);
+}]);
+asynchrony.add('SecondName',[function(done){
+  // return done(null,secondName)
+}]);
+asynchrony.invoke( [‘FirstName’, function(firstName) {
+  //do something with firstname
+}]);
+asynchrony.invokeRemainingTask(function(){
+  //do something after lastname is also executed
+});
 ```
+
 ## Tests
 ### Asynchronous dependency injection test
 ```javascript
