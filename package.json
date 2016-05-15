@@ -1,7 +1,7 @@
 {
   "name": "asynchrony-di",
-  "version": "0.1.0",
-  "description": "An Asynchronous Dependency Injection Library",
+  "version": "0.1.0-1",
+  "description": "An unopinionated asynchronous Dependency Injector and Orchestrator.",
   "main": "src/index.js",
   "directories": {
     "test": "test"
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stackroute/asyncrony-di.git"
+    "url": "git+https://github.com/stackroute/asynchrony-di.git"
   },
   "keywords": [
     "asynchrony",
