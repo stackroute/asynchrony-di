@@ -1,6 +1,6 @@
 {
   "name": "asynchrony-di",
-  "version": "0.1.0-2",
+  "version": "0.1.0-3",
   "description": "An unopinionated asynchronous Dependency Injector and Orchestrator.",
   "main": "src/index.js",
   "directories": {
@@ -46,7 +46,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stackroute/asyncrony-di/issues"
+    "url": "https://github.com/stackroute/asynchrony-di/issues"
   },
   "homepage": "https://github.com/stackroute/asyncrony-di#readme",
   "devDependencies": {
